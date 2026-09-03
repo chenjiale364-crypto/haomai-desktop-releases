@@ -123,6 +123,7 @@ def upload(file, expected_name=None):
         if matching:
             asset = matching[0]
             if asset["state"] == "uploaded" and asset["size"] == size and asset.get("digest") == "sha256:" + hashed:
+                print(json.dumps({"reusedVerifiedPart": name, "bytes": size}), flush=True)
                 return {"name": name, "bytes": size, "sha256": hashed}
             if asset["state"] != "starter" or asset.get("digest") or asset["size"] != size:
                 raise RuntimeError(f"Existing complete/different asset preserved: {name}")
@@ -171,6 +172,56 @@ def download(source, file):
             if attempt == 2: raise
             file.unlink(missing_ok=True)  # This exact, newly created cache file only.
             time.sleep(2 * (attempt + 1))
+
+
+def read_small_asset(asset):
+    if asset["size"] > 5 * 1024 ** 2 or asset["state"] != "uploaded": raise ValueError("Invalid build manifest asset")
+    connection = http.client.HTTPSConnection("api.github.com", timeout=60)
+    try:
+        connection.request("GET", f"/repos/{REPOSITORY}/releases/assets/{asset['id']}", headers={
+            "Authorization": "Bearer " + os.environ["GITHUB_TOKEN"], "Accept": "application/octet-stream", "User-Agent": "haomai-component-build",
+        })
+        response = connection.getresponse()
+        if response.status == 200:
+            data = response.read(5 * 1024 ** 2 + 1)
+        elif response.status in {301, 302, 303, 307}:
+            location = response.getheader("Location")
+            parsed = urlparse(location)
+            if parsed.scheme != "https" or parsed.hostname not in {"release-assets.githubusercontent.com", "objects.githubusercontent.com"}:
+                raise ValueError("Unapproved asset redirect")
+            # Do not forward the repository credential to the download CDN.
+            with urlopen(location, timeout=60) as download_response:
+                data = download_response.read(5 * 1024 ** 2 + 1)
+        else: raise RuntimeError(f"Manifest download status {response.status}")
+    finally:
+        connection.close()
+    if len(data) != asset["size"] or "sha256:" + digest(data) != asset["digest"]:
+        raise ValueError("Remote build manifest changed")
+    with gzip.GzipFile(fileobj=io.BytesIO(data)) as archive:
+        decoded = archive.read(32 * 1024 ** 2 + 1)
+    if len(decoded) > 32 * 1024 ** 2: raise ValueError("Oversized build manifest")
+    return json.loads(decoded)
+
+
+def reuse_complete_package(recipe):
+    assets = github("GET", f"/releases/{RELEASE_ID}/assets?per_page=100")
+    matches = [item for item in assets if item["name"] == recipe["id"] + ".manifest.json.gz"]
+    if not matches: return False
+    if len(matches) != 1: raise ValueError("Ambiguous component manifest")
+    manifest = read_small_asset(matches[0])
+    for key in ("id", "version", "compatibility", "installedBytes"):
+        if manifest.get(key) != recipe[key]: raise ValueError("Existing component metadata differs")
+    expected_files = [{key: entry[key] for key in ("path", "bytes", "sha256")} for entry in recipe["files"]]
+    if manifest.get("files") != expected_files or manifest.get("cloudVerification", {}).get("allFilesMatchTestedRuntime") is not True:
+        raise ValueError("Existing component is not the tested payload")
+    if not 0 < len(manifest.get("parts", [])) <= 64: raise ValueError("Invalid existing parts")
+    for order, part in enumerate(manifest["parts"], 1):
+        if part["name"] != f"{recipe['id']}-{recipe['version']}.zip.{order:03d}": raise ValueError("Unexpected existing asset name")
+        found = [asset for asset in assets if asset["name"] == part["name"]]
+        if len(found) != 1 or found[0]["state"] != "uploaded" or found[0]["size"] != part["bytes"] or found[0].get("digest") != "sha256:" + part["sha256"]:
+            raise ValueError("Existing component archive is incomplete")
+    print(json.dumps({"reusedCompleteComponent": recipe["id"], "files": len(expected_files), "noRepeatedDownloads": True}), flush=True)
+    return True
 
 
 class OriginalArchive:
@@ -248,6 +299,7 @@ def build(recipe, work):
     if os.environ.get("GITHUB_ACTIONS") != "true" or os.environ.get("GITHUB_REPOSITORY") != REPOSITORY:
         raise RuntimeError("Publishing runs only in the authorized GitHub repository")
     assert_draft()
+    if reuse_complete_package(recipe): return
     work.mkdir(parents=True, exist_ok=False)
     cache, assets = work / "cache", work / "assets"
     cache.mkdir(); assets.mkdir()
