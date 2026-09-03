@@ -18,7 +18,14 @@ spec.loader.exec_module(build)
 class CloudBuildTests(unittest.TestCase):
     def test_provenance_correction_preserves_complete_file_inventory(self):
         root = Path(__file__).with_name("recipes")
-        encoded = (root / "indextts-engine.recipe.json.gz").read_bytes()
+        file = root / "indextts-engine.recipe.json.gz"
+        if file.exists():
+            encoded = file.read_bytes()
+        else:
+            index = json.loads((root / "recipe-index.json").read_text())
+            record = next(item for item in index["packages"] if item["id"] == "indextts-engine")
+            encoded = b"".join((root / part["name"]).read_bytes() for part in record["parts"])
+            self.assertEqual(build.digest(encoded), record["sha256"])
         recipe = json.loads(gzip.decompress(encoded))
         fixes = json.loads((root / "provenance-fixes.json").read_text())
         before = [(item["path"], item["bytes"], item["sha256"]) for item in recipe["files"]]
