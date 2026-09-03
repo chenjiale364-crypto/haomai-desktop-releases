@@ -1,0 +1,48 @@
+name: Build optional voice components
+
+on:
+  push:
+    branches: [codex/voice-components-cloud]
+    paths:
+      - .github/workflows/voice-components.yml
+      - voice-components/build.py
+      - voice-components/test_build.py
+      - voice-components/recipes/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: voice-components-2.5.0-haomai.1
+  cancel-in-progress: false
+
+jobs:
+  reconstruct:
+    if: github.repository == 'chenjiale364-crypto/haomai-desktop-releases' && github.ref == 'refs/heads/codex/voice-components-cloud'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        package: [indextts-engine, indextts-2.5-core, qwen-emotion, shared-caption-alignment]
+    steps:
+      - name: Read the reviewed component recipe
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Verify builder safety checks
+        run: python3 -B -m unittest discover -s voice-components -p 'test_*.py'
+      - name: Verify recipe integrity
+        env:
+          COMPONENT: ${{ matrix.package }}
+        run: python3 -B voice-components/build.py --recipe "voice-components/recipes/$COMPONENT.recipe.json.gz" --validate-only
+      - name: Reconstruct and upload to component draft
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          COMPONENT: ${{ matrix.package }}
+        run: python3 -B voice-components/build.py --recipe "voice-components/recipes/$COMPONENT.recipe.json.gz" --work "$RUNNER_TEMP/haomai-voice-$COMPONENT"
+

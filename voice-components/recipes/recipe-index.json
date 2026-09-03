@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "upstreamRevision": "ee40fa7d6c6b8a2c7f06105f9f1e65775b74868c",
+  "packages": [
+    {
+      "id": "indextts-engine",
+      "recipe": "indextts-engine.recipe.json.gz",
+      "sha256": "4047d134a3ba70855e14ada17c3b0505c316a13e3047185ccfe72f9f6881e884",
+      "recipeBytes": 1796577,
+      "files": 27581,
+      "installedBytes": 8377024699,
+      "originalDownloads": 109,
+      "embeddedFiles": 68,
+      "parts": [
+        {
+          "name": "indextts-engine.recipe.json.gz.001",
+          "bytes": 196608,
+          "sha256": "57da53ebd186aedf4c96b0c07efd9bc07e261e651eb004a4c469332ec0d40ebe"
+        },
+        {
+          "name": "indextts-engine.recipe.json.gz.002",
+          "bytes": 196608,
+          "sha256": "0a9d65f502fd0c159cf12f96bfd96b16a03838d910f301d78d080319440dd88a"
+        },
+        {
+          "name": "indextts-engine.recipe.json.gz.003",
+          "bytes": 196608,
+          "sha256": "246b4678e16b7ef3fec70b82b7f5e1f0385bb2b18d0e79fc2b31cfa2a5f729b9"
+        },
+        {
+          "name": "indextts-engine.recipe.json.gz.004",
+          "bytes": 196608,
+          "sha256": "a8e8058a261816f50d38df415ff6a8e219826d2a2149845ce49366473c45dc84"
+        },
+        {
+          "name": "indextts-engine.recipe.json.gz.005",
+          "bytes": 196608,
+          "sha256": "cee6273dff2d843696cc923d6b855feae14b7e3f9bf8bbc9ee1b311041a5294d"
+        },
+        {
+          "name": "indextts-engine.recipe.json.gz.006",
+          "bytes": 196608,
+          "sha256": "e727a90eedb768033d2c21f66faa0e9a83326991f91ffde70ac4c45a1436a51f"
+        },
+        {
+          "name": "indextts-engine.recipe.json.gz.007",
+          "bytes": 196608,
+          "sha256": "390bd9ef5743a70ae6c51458db543486550767d8208128a6becbe3cff09c48af"
+        },
+        {
+          "name": "indextts-engine.recipe.json.gz.008",
+          "bytes": 196608,
+          "sha256": "b15e81eb564fd1cbc8b0a0b3ce265ba48471194de2230f83c63d9b2c28aeb08f"
+        },
+        {
+          "name": "indextts-engine.recipe.json.gz.009",
+          "bytes": 196608,
+          "sha256": "a84645e4c98a8188aabb0ed1e8193355d0f4e78ae72e87c83e27600331203675"
+        },
+        {
+          "name": "indextts-engine.recipe.json.gz.010",
+          "bytes": 27105,
+          "sha256": "7b29843198c5ce570d7a6a7e716412bee50ece673f62146310142d23bb23090a"
+        }
+      ]
+    },
+    {
+      "id": "indextts-2.5-core",
+      "recipe": "indextts-2.5-core.recipe.json.gz",
+      "sha256": "d018ef0f54412b8566886dbb9d966441b6b9e2c92d4a6e83f363ffe0872205fd",
+      "recipeBytes": 28676,
+      "files": 26,
+      "installedBytes": 7082540898,
+      "originalDownloads": 15,
+      "embeddedFiles": 11
+    },
+    {
+      "id": "qwen-emotion",
+      "recipe": "qwen-emotion.recipe.json.gz",
+      "sha256": "6125422d915ba8b8bd38712b7f37e6d694a60cc607db8635304b4f0745d98017",
+      "recipeBytes": 18682,
+      "files": 15,
+      "installedBytes": 1208046542,
+      "originalDownloads": 10,
+      "embeddedFiles": 5
+    },
+    {
+      "id": "shared-caption-alignment",
+      "recipe": "shared-caption-alignment.recipe.json.gz",
+      "sha256": "daf4c1115d8e52def5b6b5828e4e94540a5bed9b7e3e01b44eb7d099c05cae97",
+      "recipeBytes": 11784,
+      "files": 8,
+      "installedBytes": 244109818,
+      "originalDownloads": 3,
+      "embeddedFiles": 5
+    }
+  ],
+  "privateInputsRead": false
+}
