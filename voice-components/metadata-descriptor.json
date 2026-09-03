@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "releaseId": 381995933,
+  "tag": "voice-components-2.5.0-haomai.1",
+  "header": {
+    "schemaVersion": 1,
+    "platform": "win32-x64",
+    "release": "voice-components-2.5.0-haomai.1",
+    "licenseVersion": "ee40fa7",
+    "licenseUrl": "https://github.com/index-tts/index-tts/blob/ee40fa7/LICENSE_ZH.txt"
+  },
+  "keyId": "haomai-voice-ed25519-2026-09",
+  "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA75C0dZ1eqP3S+kOfy3ajV1khS29Ffyrw7m5iUWzf9tc=\n-----END PUBLIC KEY-----\n",
+  "signature": "sC0YkAUGm5MYVwgS03rufS5tzMuqo6w5cI05eW3+Tz5FhfHgyRNB2Z/tODqQMTqNMaMDcnsVshWuPd41SNR/Ag==",
+  "catalogSha256": "de8c46230f108074bda888645d050c497fde835c5d8288a52e712908b9633292",
+  "metadata": [
+    {
+      "name": "component-catalog.json",
+      "bytes": 6268876,
+      "sha256": "c743d2299b63e226760bfceb2a5ba604f37edf19b849c14f50e2ac5749199dd7"
+    },
+    {
+      "name": "component-trust.json",
+      "bytes": 157,
+      "sha256": "2fceb906c9b197c9b2314f668adeacc91ab9c90e065d4770b91e9fb8e0a3119e"
+    }
+  ],
+  "manifests": [
+    {
+      "id": "indextts-engine",
+      "bytes": 1366000,
+      "sha256": "4c1ece7a73cba6b7b8370465cc187ddf57f61b0275f478807b3493e9259fa521"
+    },
+    {
+      "id": "indextts-2.5-core",
+      "bytes": 2153,
+      "sha256": "6f73b45e53d99aef1b842cd95e83fbd79baa3482ed76fad67812d5d4c97eeda0"
+    },
+    {
+      "id": "qwen-emotion",
+      "bytes": 1215,
+      "sha256": "802d19669ec277ea14344e3374c5cd2f579a3ddd68e152dfdedbec736323258e"
+    },
+    {
+      "id": "shared-caption-alignment",
+      "bytes": 815,
+      "sha256": "c4c6c24dbb2353d06dbb21ba98ec68d09a05bd15ad5bc38a4cd28c9bef934f95"
+    }
+  ]
+}

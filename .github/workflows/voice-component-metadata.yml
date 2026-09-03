@@ -1,0 +1,31 @@
+name: Finalize signed voice metadata
+
+on:
+  push:
+    branches: [codex/voice-components-cloud]
+    paths:
+      - .github/workflows/voice-component-metadata.yml
+      - voice-components/publish-metadata.mjs
+      - voice-components/metadata-descriptor.json
+
+permissions:
+  contents: read
+
+concurrency:
+  group: voice-components-signed-metadata
+  cancel-in-progress: false
+
+jobs:
+  metadata:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Verify the local public signature and upload identical metadata
+        run: node voice-components/publish-metadata.mjs --confirmed-signed-component-metadata
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
