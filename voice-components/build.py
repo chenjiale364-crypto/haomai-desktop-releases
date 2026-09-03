@@ -88,6 +88,31 @@ def validate_recipe(recipe):
             raise ValueError("Unpinned source")
 
 
+def apply_provenance_fixes(recipe, base_sha, fixes):
+    if fixes.get("schemaVersion") != 1 or not set(fixes.get("packages", {})) <= PACKAGE_IDS:
+        raise ValueError("Unrecognized provenance fixes")
+    package = fixes["packages"].get(recipe["id"])
+    if package is None: return
+    if package.get("baseRecipeSha256") != base_sha: raise ValueError("Provenance fix belongs to another recipe")
+    before = [{key: entry[key] for key in ("path", "bytes", "sha256")} for entry in recipe["files"]]
+    for key, correction in package.get("artifacts", {}).items():
+        if recipe["artifacts"][key].get("sha256") != correction["previousSha256"]:
+            raise ValueError("Original provenance changed")
+        recipe["artifacts"][key] = correction["replacement"]
+    for metadata in package.get("installerMetadata", []):
+        if metadata["path"] not in {"python/BUILD", "python/Lib/EXTERNALLY-MANAGED"}:
+            raise ValueError("Not an installer-created public marker")
+        entry = next(item for item in recipe["files"] if item["path"] == metadata["path"])
+        content = base64.b64decode(metadata["content"], validate=True)
+        if len(content) > 1024 or len(content) != entry["bytes"] or digest(content) != entry["sha256"] or metadata["sha256"] != entry["sha256"]:
+            raise ValueError("Installer marker differs from tested runtime")
+        entry.pop("artifact", None); entry.pop("member", None)
+        entry["embedded"] = entry["sha256"]
+        recipe["embedded"][entry["sha256"]] = metadata["content"]
+    if before != [{key: entry[key] for key in ("path", "bytes", "sha256")} for entry in recipe["files"]]:
+        raise ValueError("A provenance fix must not change runtime contents")
+
+
 def github(method, path, data=None):
     token = os.environ.get("GITHUB_TOKEN")
     if not token:
@@ -367,6 +392,14 @@ def main():
         encoded = b"".join(chunks)
     if len(encoded) != expected["recipeBytes"] or digest(encoded) != expected["sha256"]: raise ValueError("Recipe changed since local review")
     recipe = json.loads(gzip.decompress(encoded))
+    if index.get("provenanceFixes"):
+        fix_record = index["provenanceFixes"]
+        if fix_record["name"] != "provenance-fixes.json": raise ValueError("Unsafe provenance filename")
+        fix_file = file.parent / fix_record["name"]
+        if fix_file.stat().st_size > 32768: raise ValueError("Oversized provenance fixes")
+        fix_bytes = fix_file.read_bytes()
+        if len(fix_bytes) != fix_record["bytes"] or digest(fix_bytes) != fix_record["sha256"]: raise ValueError("Provenance fixes changed")
+        apply_provenance_fixes(recipe, expected["sha256"], json.loads(fix_bytes))
     validate_recipe(recipe)
     if args.validate_only:
         print(json.dumps({"recipeValid": recipe["id"], "files": len(recipe["files"]), "downloadsStarted": 0})); return

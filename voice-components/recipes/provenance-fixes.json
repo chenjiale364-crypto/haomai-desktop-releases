@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "packages": {
+    "indextts-engine": {
+      "baseRecipeSha256": "806d472e8b2ca4f4d7d8abea5bb576caf1faab3bd410a3ae92f19fc33c2a67c7",
+      "artifacts": {
+        "c8b449df8846409aee949273": {
+          "previousSha256": "6be524fa6752af802146a4adc7d098565425b0b1c166e19a5a7a4c8cccb86bf6",
+          "replacement": {
+            "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20260901/cpython-3.11.16%2B20260901-x86_64-pc-windows-msvc-install_only_stripped.tar.gz",
+            "kind": "tar",
+            "sha256": "06cbe479e039f5b9cb5640c286d790074d63f549f92a32d599a3748293bd4510",
+            "bytes": 25189257
+          }
+        }
+      },
+      "installerMetadata": [
+        {
+          "path": "python/Lib/EXTERNALLY-MANAGED",
+          "sha256": "d9464392449b553040ca45de3dbce3bb5c3af66e4c807bbd720ab8fd98bb4c54",
+          "content": "W2V4dGVybmFsbHktbWFuYWdlZF0KRXJyb3I9VGhpcyBQeXRob24gaW5zdGFsbGF0aW9uIGlzIG1hbmFnZWQgYnkgdXYgYW5kIHNob3VsZCBub3QgYmUgbW9kaWZpZWQuCg=="
+        }
+      ]
+    }
+  }
+}

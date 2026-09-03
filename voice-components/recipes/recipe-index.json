@@ -95,5 +95,10 @@
       "embeddedFiles": 5
     }
   ],
-  "privateInputsRead": false
+  "privateInputsRead": false,
+  "provenanceFixes": {
+    "name": "provenance-fixes.json",
+    "bytes": 1064,
+    "sha256": "c120e1bc84ba0d83a651bb9cd22d35fa8865c8240e63b81d4c4609bdf6fa9db0"
+  }
 }

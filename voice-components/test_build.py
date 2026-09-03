@@ -1,4 +1,6 @@
 import hashlib
+import base64
+import gzip
 import importlib.util
 import io
 import json
@@ -14,6 +16,26 @@ spec.loader.exec_module(build)
 
 
 class CloudBuildTests(unittest.TestCase):
+    def test_provenance_correction_preserves_complete_file_inventory(self):
+        root = Path(__file__).with_name("recipes")
+        encoded = (root / "indextts-engine.recipe.json.gz").read_bytes()
+        recipe = json.loads(gzip.decompress(encoded))
+        fixes = json.loads((root / "provenance-fixes.json").read_text())
+        before = [(item["path"], item["bytes"], item["sha256"]) for item in recipe["files"]]
+        build.apply_provenance_fixes(recipe, build.digest(encoded), fixes)
+        build.validate_recipe(recipe)
+        self.assertEqual(before, [(item["path"], item["bytes"], item["sha256"]) for item in recipe["files"]])
+        marker = next(item for item in recipe["files"] if item["path"] == "python/Lib/EXTERNALLY-MANAGED")
+        self.assertEqual(build.digest(base64.b64decode(recipe["embedded"][marker["embedded"]])), marker["sha256"])
+
+    def test_provenance_cannot_change_a_tested_installer_marker(self):
+        recipe = {"id": "indextts-engine", "artifacts": {}, "embedded": {}, "files": [{"path": "python/BUILD", "bytes": 1, "sha256": build.digest(b"a")}]}
+        fixes = {"schemaVersion": 1, "packages": {"indextts-engine": {"baseRecipeSha256": "reviewed", "installerMetadata": [
+            {"path": "python/BUILD", "sha256": build.digest(b"a"), "content": base64.b64encode(b"b").decode()},
+        ]}}}
+        with self.assertRaisesRegex(ValueError, "differs"):
+            build.apply_provenance_fixes(recipe, "reviewed", fixes)
+
     def test_windows_paths_are_bounded(self):
         for name in ("../escape", "/absolute", "a\\b", "CON.txt", "ok/../no", "a. /no", "a:", "a\x00b"):
             self.assertFalse(build.safe_path(name), name)

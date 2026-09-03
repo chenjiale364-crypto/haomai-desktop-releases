@@ -29,8 +29,13 @@ complete assets with different contents are preserved. A component manifest is
 uploaded only after all its files pass verification. The release remains a draft
 until a separate local verification and signing step approves publication.
 
+Small provenance corrections are hash-bound to a specific base recipe. They
+can select the exact official binary build and reconstruct two installer-created
+Python markers, but cannot change any tested file name, size or content hash.
+Keeping these corrections separate avoids re-uploading megabytes of otherwise
+unchanged inventory when a download location needs correction.
+
 Upstream model code: `index-tts/index-tts` at
 `ee40fa7d6c6b8a2c7f06105f9f1e65775b74868c`. Applicable model terms, notices and
 required corresponding-source materials accompany the component release.
 The original model rightsholders do not endorse or warrant these modifications.
-
